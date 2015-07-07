@@ -5,7 +5,8 @@
 
     #include "magic.h"
 
-    int nchar, nword, nline;
+    int nchar, nword;
+    int linenum = 0;
 
     #define YYSTYPE struct magic_object*
     extern YYSTYPE yylval;
@@ -33,7 +34,18 @@ pm      "+"|"-"
                                     return STRING;
                                 }
 
-[-+()*\n]                       return *yytext;
+"if"                            return IF;
+"else"                          return ELSE;
+"return"                        return RETURN;
+"function"                      return FUNCTION;
+"end"                           return END;
+
+[-+()*]                         return *yytext;
+
+"\n"                            {
+                                    linenum++;
+                                    ECHO;
+                                }
 
 :=                              ECHO;
 

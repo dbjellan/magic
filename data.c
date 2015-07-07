@@ -3,38 +3,9 @@
 
 #include "magic.h"
 
-struct magic_object;
-struct magic_context;
-
-struct magic_hash_entry {
-    struct magic_hash_entry *next;
-    char *key;
-    m_object *value;
-};
-typedef struct magic_hash_entry m_entry;
-
-struct magic_hash_table {
-    struct magic_hash_entry** table;
-    unsigned int size;
-};
-
-struct magic_namespace {
-    struct magic_namespace* next_namespace;
-    struct magic_hash_table* namespace_table;
-};
-
-struct magic_context {
-    struct magic_namespace* global_namespace;
-    struct magic_namespace* top_namespace;
-};
-
-
-typedef struct magic_hash_entry m_hashentry;
-typedef struct magic_hash_table m_hashtable;
-
-typedef struct magic_object* (*magic_function)(struct magic_namespace*, struct magic_object**, int numargs);
-
 void set(m_hashtable *table, char *key, m_object *value);
+m_object* get(m_hashtable *table, char *key);
+m_hashtable* new_hash_table(int size);
 
 m_hashtable* new_hash_table(int size) {
     m_hashtable* table = malloc(sizeof(m_hashtable));
@@ -75,6 +46,17 @@ m_object* get(m_hashtable *table, char *key) {
     while (bin_entry != NULL) {
         if (strcmp(key, bin_entry->key) == 0) {
             return bin_entry->value;
+        }
+        bin_entry = bin_entry->next;
+    }
+    return NULL;
+}
+m_object** get_lvalue(m_hashtable *table, char *key) {
+    unsigned int hash_value = hash(key, table->size);
+    m_entry *bin_entry = table->table[hash_value];
+    while (bin_entry != NULL) {
+        if (strcmp(key, bin_entry->key) == 0) {
+            return &(bin_entry->value);
         }
         bin_entry = bin_entry->next;
     }

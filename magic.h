@@ -6,6 +6,7 @@
 
 struct magic_object;
 struct magic_context;
+struct magic_hash_table;
 
 typedef struct magic_object m_object;
 typedef struct magic_hash_entry m_entry;
