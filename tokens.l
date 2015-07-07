@@ -3,6 +3,8 @@
     void yyerror(char *);
     #include "y.tab.h"
 
+    #include "magic.h"
+
     int nchar, nword, nline;
 
     #define YYSTYPE struct magic_object*
@@ -22,12 +24,12 @@ pm      "+"|"-"
                                 }
 
 {digit}+                        {   
-                                    yylval = atoi(yytext);
+                                    yylval = make_magic_object(atoi(yytext));
                                     return INT;
                                 }
 
 "'"[^"'"]*"'"                    {
-                                    yylval = yytext;
+                                    yylval = make_magic_object(yytext);
                                     return STRING;
                                 }
 

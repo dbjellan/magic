@@ -13,7 +13,7 @@
 %%
 S       :   S S
         |   exp '\n'            { printf("%d\n", $1);}
-        |   lval ':=' exp
+        |   lval ':=' exp '\n'
         ;
 
 exp     :   INT                 { $$ = $1;}

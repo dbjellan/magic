@@ -1,30 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
-#define INT 0
-#define STRING 1
-#define TABLE 2
-#define FUNCTION 3
-#define DOUBLE 4
+#include "magic.h"
 
 struct magic_object;
 struct magic_context;
-
-union magic_value {
-    char *as_string;
-    int   *as_int;
-    double *as_double;
-    void *as_function;
-    void *as_table;
-};
-
-struct magic_object {    
-    short type;
-    union magic_value value;
-};
-
-typedef struct magic_object m_object;
 
 struct magic_hash_entry {
     struct magic_hash_entry *next;
@@ -52,7 +32,7 @@ struct magic_context {
 typedef struct magic_hash_entry m_hashentry;
 typedef struct magic_hash_table m_hashtable;
 
-typedef struct magic_object* (*magic_function)(struct magic_context*, struct magic_object**, int numargs);
+typedef struct magic_object* (*magic_function)(struct magic_namespace*, struct magic_object**, int numargs);
 
 void set(m_hashtable *table, char *key, m_object *value);
 
@@ -137,8 +117,4 @@ void set(m_hashtable *table, char *key, m_object *value) {
             bin_entry->value = value;
         }
     }
-}
-
-m_object* get_identifier(char *identifier) {
-    return NULL;
 }
