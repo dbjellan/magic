@@ -1,0 +1,2 @@
+
+void fatal(char *msg);

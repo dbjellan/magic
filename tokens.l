@@ -8,7 +8,7 @@
     int nchar, nword;
     int linenum = 0;
 
-    #define YYSTYPE struct magic_object*
+    #define YYSTYPE struct ast_node*
     extern YYSTYPE yylval;
 %}
 
@@ -17,6 +17,14 @@ letter  [A-Za-z]
 pm      "+"|"-"
 
 %%
+if                              return IF;
+else                            return ELSE;
+return                          return RETURN;
+function                        return FUNCTION;
+end                             return END;
+
+":="                            return ASSIGN;
+"."                             return DOT;
 
 {letter}({letter}|{digit})*     {   
                                     yylval = yytext;
@@ -25,20 +33,19 @@ pm      "+"|"-"
                                 }
 
 {digit}+                        {   
-                                    yylval = make_magic_object(atoi(yytext));
+                                    yylval = yytext
                                     return INT;
                                 }
 
-"'"[^"'"]*"'"                    {
-                                    yylval = make_magic_object(yytext);
-                                    return STRING;
+{digit}+"."{digit}*             {
+                                    yylval = yytext
+                                    return FLOAT
                                 }
 
-"if"                            return IF;
-"else"                          return ELSE;
-"return"                        return RETURN;
-"function"                      return FUNCTION;
-"end"                           return END;
+"'"[^"'"]*"'"                    {
+                                    yylval = yytext;
+                                    return STRING;
+                                }
 
 [-+()*]                         return *yytext;
 

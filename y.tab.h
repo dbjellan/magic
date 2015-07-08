@@ -1,3 +1,11 @@
 #define INT 257
 #define IDENT 258
 #define STRING 259
+#define FLOAT 260
+#define IF 261
+#define ELSE 262
+#define RETURN 263
+#define FUNCTION 264
+#define END 265
+#define DOT 266
+#define ASSIGN 267

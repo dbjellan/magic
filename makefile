@@ -7,8 +7,14 @@ regenerate:
 	yacc -d grammar.y
 	lex tokens.l
 
-main: data.o grammar.o tokens.o magic.o
-	$(CC) $(CFLAGS) data.o tokens.o magic.o grammar.o -o magic
+main: data.o grammar.o tokens.o magic.o ast.o util.o
+	$(CC) $(CFLAGS) data.o tokens.o magic.o grammar.o ast.o util.o -o magic
+
+util.o:
+	$(CC) $(CFLAGS) -c util.c -o util.o	
+
+ast.o:
+	$(CC) $(CFLAGS) -c ast.c -o ast.o	
 
 magic.o:
 	$(CC) $(CFLAGS) -c magic.c -o magic.o

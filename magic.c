@@ -3,20 +3,6 @@
 
 #include "magic.h"
 
-union magic_value {
-    char *as_string;
-    int   *as_int;
-    double *as_double;
-    void *as_function;
-    void *as_table;
-    void *ptr;
-};
-
-struct magic_object {    
-    short type;
-    union magic_value value;
-};
-
 struct magic_hash_entry {
     struct magic_hash_entry *next;
     char *key;
@@ -38,16 +24,14 @@ typedef struct magic_namespace magic_namespace;
 struct magic_state {
     struct magic_namespace* global_namespace;
     struct magic_namespace* cur_namespace;
-    struct vm_instruction *instructions;
+    struct vm_module* main_module;
+    struct vm_module* cur_module;
 };
+
 typedef struct magic_state m_state;
 
 typedef struct magic_hash_entry m_hashentry;
 typedef struct magic_hash_table m_hashtable;
-
-struct magic_function {
-    
-};
 
 m_object* make_magic_object(char *string) {
     m_object* result = (m_object*) malloc(sizeof(m_object));
@@ -123,7 +107,9 @@ m_state* new_magic_state() {
         newstate->global_namespace = newglobalns;
         newstate->cur_namespace = newglobalns;
     }
-    newstate->instructions = NULL;
+    newstate->main_module = new_vm_module();
+    newstate->cur_module = newstate->main_module;
+
     return newstate;
 
 }
