@@ -456,7 +456,7 @@ static const yytype_uint8 yyrline[] =
 {
        0,    20,    20,    22,    23,    24,    25,    28,    29,    31,
       32,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      46,    47,    48,    49
+      46,    47,    50,    51
 };
 #endif
 
@@ -1362,13 +1362,13 @@ yyreduce:
     break;
 
   case 22:
-#line 48 "grammar.y" /* yacc.c:1661  */
+#line 50 "grammar.y" /* yacc.c:1661  */
     { (yyval) = make_lval_identifier((yyvsp[0]));}
 #line 1368 "y.tab.c" /* yacc.c:1661  */
     break;
 
   case 23:
-#line 49 "grammar.y" /* yacc.c:1661  */
+#line 51 "grammar.y" /* yacc.c:1661  */
     { (yyval) = make_lval_access((yyvsp[-2]), (yyvsp[0]));}
 #line 1374 "y.tab.c" /* yacc.c:1661  */
     break;
@@ -1602,14 +1602,9 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 51 "grammar.y" /* yacc.c:1906  */
+#line 54 "grammar.y" /* yacc.c:1906  */
 
 
 void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
-}
-
-int main(int argc, char *argv[]) {
-    yyparse();
-    return 0;
 }

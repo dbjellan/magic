@@ -45,16 +45,14 @@ exp     :   rval
 
 rval    :   IDENT               { $$ = make_identifier($1);}
         |   rval    DOT IDENT   { $$ = make_field($1, $3);}
-lval    :   IDENT               { $$ = make_lval_identifier($1);} ;
+        ;
+
+lval    :   IDENT               { $$ = make_lval_identifier($1);}
         |   lval DOT IDENT      { $$ = make_lval_access($1, $3);}
+        ;
 
 %%
 
 void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
-}
-
-int main(int argc, char *argv[]) {
-    yyparse();
-    return 0;
 }
