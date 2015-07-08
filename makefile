@@ -29,4 +29,4 @@ data.o:
 	$(CC) $(CFLAGS) -c data.c
 
 clean:
-	rm *.o magic
+	rm *.o magic lex.yy.c y.tab.h y.tab.c

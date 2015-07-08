@@ -2,18 +2,16 @@
 #include <string.h>
 
 #include "magic.h"
+#include "data.h"
 
-void set(m_hashtable *table, char *key, m_object *value);
-m_object* get(m_hashtable *table, char *key);
-m_hashtable* new_hash_table(int size);
-
-m_hashtable* new_hash_table(int size) {
-    m_hashtable* table = malloc(sizeof(m_hashtable));
+m_hash_table* new_hash_table(int size) {
+    m_hash_table* table = (m_hash_table*) malloc(sizeof(m_hash_table));
     if (table) {
-        table->table = malloc(sizeof(struct magic_hash_entry*)*size);
+        table->table = (magic_hash_entry **) malloc(sizeof(struct magic_hash_entry**)*size);
         table->size = size;
     }
 }
+
 
 unsigned int hash(const char *key, unsigned int m) {
     size_t length = strlen(key);
@@ -40,9 +38,9 @@ unsigned int hash(const char *key, unsigned int m) {
     return result;
 }
 
-m_object* get(m_hashtable *table, char *key) {
+m_object* get(m_hash_table *table, char *key) {
     unsigned int hash_value = hash(key, table->size);
-    m_entry *bin_entry = table->table[hash_value];
+    m_hashentry *bin_entry = table->table[hash_value];
     while (bin_entry != NULL) {
         if (strcmp(key, bin_entry->key) == 0) {
             return bin_entry->value;
@@ -51,9 +49,9 @@ m_object* get(m_hashtable *table, char *key) {
     }
     return NULL;
 }
-m_object** get_lvalue(m_hashtable *table, char *key) {
+m_object** get_lvalue(m_hash_table *table, char *key) {
     unsigned int hash_value = hash(key, table->size);
-    m_entry *bin_entry = table->table[hash_value];
+    m_hashentry *bin_entry = table->table[hash_value];
     while (bin_entry != NULL) {
         if (strcmp(key, bin_entry->key) == 0) {
             return &(bin_entry->value);
@@ -63,13 +61,12 @@ m_object** get_lvalue(m_hashtable *table, char *key) {
     return NULL;
 }
 
-void resize(m_hashtable *table, unsigned int new_size) {
-    m_hashtable* result;
+void resize(m_hash_table *table, unsigned int new_size) {
+    m_hash_table* result;
     if (new_size > table->size) {
         unsigned int old_size = table->size;
-        m_hashtable *result;
         result = new_hash_table(new_size);
-        m_entry *cur_entry;
+        m_hashentry *cur_entry;
         for(int i = 0; i < old_size; i++) {
             cur_entry = table->table[i];
             while(cur_entry != NULL) {
@@ -80,9 +77,9 @@ void resize(m_hashtable *table, unsigned int new_size) {
     }
 }
 
-void set(m_hashtable *table, char *key, m_object *value) {
+void set(m_hash_table *table, char *key, m_object *value) {
     unsigned int hash_val = hash(key, table->size);
-    m_entry *bin_entry = table->table[hash_val];
+    m_hashentry *bin_entry = table->table[hash_val];
     bool found = false;
     while (bin_entry != NULL) {
         if (strcmp(key, bin_entry->key) == 0) {
@@ -92,7 +89,7 @@ void set(m_hashtable *table, char *key, m_object *value) {
         }
     } 
     if (!found) {
-        bin_entry = malloc(sizeof(m_entry));
+        bin_entry = (m_hashentry *)malloc(sizeof(m_hashentry));
         if (bin_entry) {
             bin_entry->next = NULL;
             bin_entry->key = key;

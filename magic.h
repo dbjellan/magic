@@ -1,30 +1,59 @@
-#define INT 0
-#define STRING 1
-#define TABLE 2
-#define FUNCTION 3
-#define DOUBLE 4
-#define MODULE 5
+#define INT_OBJ 0
+#define STRING_OBJ 1
+#define TABLE_OBJ 2
+#define FUNCTION_OBJ 3
+#define DOUBLE_OBJ 4
+#define MODULE_OBJ 5
+#define NILL_OBJ    6
 
 struct magic_object;
 struct magic_context;
 struct magic_hash_table;
 
-union magic_value {
-    char *as_string;
-    int   *as_int;
-    double *as_double;
-    void *as_function;
-    void *as_table;
-    void *ptr;
-};
-
+#ifndef MAGIC_OBJECT_DEFINED
+#define MAGIC_OBJECT_DEFINED
 struct magic_object {    
     short type;
-    union magic_value value;
+    void *value;
 };
-
+#endif
 typedef struct magic_object m_object;
-typedef struct magic_hash_entry m_entry;
+
+#ifndef MAGIC_HASH_ENTRY_DEFINED
+#define MAGIC_HASH_ENTRY_DEFINED
+struct magic_hash_entry {
+    struct magic_hash_entry *next;
+    char *key;
+    m_object *value;
+};
+#endif
+typedef struct magic_hash_entry m_hashentry;
+
+#ifndef MAGIC_HASH_TABLE_DEFINED
+#define MAGIC_HASH_TABLE_DEFINED
+struct magic_hash_table {
+    struct magic_hash_entry** table;
+    unsigned int size;
+};
+#endif
+typedef struct magic_hash_table m_hash_table;
+
+#ifndef MAGIC_NAMESPACE_DEFINED
+#define MAGIC_NAMESPACE_DEFINED
+struct magic_namespace {
+    struct magic_namespace* next_namespace;
+    struct magic_hash_table* namespace_table;
+};
+#endif
+typedef struct magic_namespace m_namespace;
+
+#ifndef MAGIC_STATE_DEFINED
+#define MAGIC_STATE_DEFINED
+struct magic_state {
+    struct magic_namespace* global_namespace;
+    struct magic_namespace* cur_namespace;
+};
+#endif
 typedef struct magic_state m_state;
 
 m_object* get_identifier(char *identifier);

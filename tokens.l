@@ -27,23 +27,23 @@ end                             return END;
 "."                             return DOT;
 
 {letter}({letter}|{digit})*     {   
-                                    yylval = yytext;
+                                    yylval = (struct ast_node*)yytext;
                                     return IDENT;
 
                                 }
 
 {digit}+                        {   
-                                    yylval = yytext
+                                    yylval = (struct ast_node*)yytext;
                                     return INT;
                                 }
 
 {digit}+"."{digit}*             {
-                                    yylval = yytext
-                                    return FLOAT
+                                    yylval = (struct ast_node*)yytext;
+                                    return FLOAT;
                                 }
 
 "'"[^"'"]*"'"                    {
-                                    yylval = yytext;
+                                    yylval = (struct ast_node*)yytext;
                                     return STRING;
                                 }
 

@@ -4,11 +4,12 @@
     void yyerror(char *);   
 
     #include    "magic.h"
-    #include    "vm.h"
+    #include    "ast.h"
 
-    m_state* state = NULL
+
+    ast_node* root;
 %}
-
+%code requires { #define YYSTYPE struct ast_node* }
 %token INT
 %token IDENT
 %token STRING
@@ -16,13 +17,16 @@
 %token IF ELSE RETURN FUNCTION END DOT ASSIGN
 
 %%
-M       :   S                   { root  =   $1}
+M       :   S                   { root  =  make_module($1);}
 
-S       :   S S                 { $$ = make_statments($1, $2)}
+S       :   S S                 { $$ = make_statements($1, $2);}
         |   exp '\n'            { $$ = $1;}
-        |   lval ASSIGN exp '\n'  { $$ = make_assign($1, $3)}
-        |   FUNCTION IDENT '(' arglist ')' S END    { $$ make_func($2, $4, $6)}
+        |   lval ASSIGN exp '\n'  { $$ = make_assign($1, $3);}
+        |   FUNCTION IDENT '(' varlist ')' S END    { $$ = make_func($2, $4, $6);}
         ;
+
+varlist :   IDENT               {make_identifier($1);}
+        |   varlist     ','     IDENT {make_varlist($1, $3);}
 
 arglist :   exp
         |   arglist     ','     exp {   make_arglist($1, $3);}
