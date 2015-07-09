@@ -12,7 +12,7 @@
     #define YYSTYPE struct ast_node*
     extern YYSTYPE yylval;
 
-    extern int readInputForLexer(char* buffer,int *numBytesRead,int maxBytesToRead);
+    extern int readInputForLexer(char* buffer,size_t *numBytesRead,int maxBytesToRead);
     #undef YY_INPUT
     #define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
 %}
@@ -42,7 +42,7 @@ end                             return END;
                                     return INT;
                                 }
 
-{digit}+"."{digit}*             {
+{digit}+\.{digit}*             {
                                     yylval = (struct ast_node*)yytext;
                                     return FLOAT;
                                 }

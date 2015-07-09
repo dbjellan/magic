@@ -8,7 +8,7 @@
     void yyerror(char *);   
 
 
-    extern int readInputForLexer(char* buffer,int *numBytesRead,int maxBytesToRead);
+    extern int readInputForLexer(char* buffer,size_t *numBytesRead,int maxBytesToRead);
     ast_node* root;
 %}
 %code requires { #define YYSTYPE struct ast_node* }
@@ -37,6 +37,7 @@ arglist :   exp
 exp     :   rval  
         |   IDENT '(' arglist ')'   { $$ = make_function_call($1, $3);}
         |   INT                 { $$ = make_int_lit($1);}
+        |   FLOAT               { $$ = make_float_lit($1);}
         |   STRING              { $$ = make_string_lit($1);}
         |   exp     '+'     exp { $$ = make_add($1, $3);}
         |   exp     '-'     exp { $$ = make_sub($1, $3);}

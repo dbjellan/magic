@@ -207,16 +207,16 @@ struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
     struct magic_object* result;
     magic_object* a = ast_execute(state, node->children[0]);
     magic_object* b = ast_execute(state, node->children[1]);
-    printf("add type: %d\n", a->type);
-    printf("%d\n", b->type);
-    if (a->type == DOUBLE_OBJ && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+    if ((a->type == DOUBLE_OBJ ||b->type == INT_OBJ ) || (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+        if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
         double result_val = 0;
         result_val = *(double *)node->children[0]->value + *(double *)node->children[1]->value;
         result = make_double_object(result_val);
-    } else if (a->type == INT_OBJ && b->type == INT_OBJ) {
-        int result_val = 0;
-        result_val = *(int *)node->children[0]->value + *(int *)node->children[1]->value;
-        result = make_int_object(result_val);
+        } else {
+            int result_val = 0;
+            result_val = *(int *)node->children[0]->value + *(int *)node->children[1]->value;
+            result = make_int_object(result_val);
+        }
     } else {
         fatal("can't add objects, raise exception here");
     }
@@ -225,7 +225,15 @@ struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
 
 struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* node) {
     char* identifier = (char *)node->value;
-    
+    m_object** val = get_lvalue(state, identifier);
+    m_object* result;
+    if (val == NULL) {
+        result = make_ident_object(identifier);
+    }
+    else {
+        result = make_ref_object(val);
+    }
+    return result;
 }
 
 struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
@@ -243,17 +251,24 @@ struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
         case AST_ADD:
             return ast_execute_add(state, node);
         case AST_ASSIGN: {
-            magic_object *rexp = ast_execute(state, node->children[0]);
-            m_object **lvalue = (m_object **) rexp->value;
+            magic_object *lexp = ast_execute(state, node->children[0]);
             m_object *rvalue = ast_execute(state, node->children[1]);
-            *lvalue = rvalue;
-            free_magic_object(*lvalue);
+            if (lexp->type == REF_OBJ) {
+                m_object **lvalue = (m_object **) lexp->value;
+                *lvalue = rvalue;
+                free_magic_object(lexp);
+            } else {
+                // object is IDENT_OBJ
+                set_identifier(state, (char *)lexp->value, rvalue);
+            }
             return rvalue;
         }
         case AST_LVAL_IDENTIFIER: 
-            ast_execute_lval_ident(state, node)
+            return ast_execute_lval_ident(state, node);
         case AST_MODULE:
             return ast_execute(state, node->children[0]);
+        case AST_IDENTIFIER:
+            return get_identifier(state, (char *)node->value);
         default:
             fatal("Illegal internal state");
     }

@@ -9,7 +9,11 @@ m_hash_table* new_hash_table(int size) {
     if (table) {
         table->table = (magic_hash_entry **) malloc(sizeof(struct magic_hash_entry**)*size);
         table->size = size;
+        for (int i = 0; i < size; i++) {
+            table->table[i] = NULL;
+        }
     }
+    return table;
 }
 
 
@@ -35,7 +39,7 @@ unsigned int hash(const char *key, unsigned int m) {
         result = result ^ (highorder >> 27);
         result = result ^ value;
     }
-    return result;
+    return result % m;
 }
 
 m_object* get(m_hash_table *table, char *key) {
@@ -60,10 +64,6 @@ m_object** get_lvalue(m_hash_table *table, char *key) {
         bin_entry = bin_entry->next;
     }
     return NULL;
-}
-
-m_object** get_lvalue(m_state *table, char *key) {
-
 }
 
 void resize(m_hash_table *table, unsigned int new_size) {
@@ -97,7 +97,8 @@ void set(m_hash_table *table, char *key, m_object *value) {
         bin_entry = (m_hashentry *)malloc(sizeof(m_hashentry));
         if (bin_entry) {
             bin_entry->next = NULL;
-            bin_entry->key = key;
+            bin_entry->key = (char *) malloc(strlen(key)+1);
+            strcpy(bin_entry->key, key);
             bin_entry->value = value;
         }
     }

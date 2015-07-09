@@ -8,9 +8,28 @@
 #define INT_STRING_LENGTH 20
 #define DOUBLE_STRING_LENGTH 20
 
+m_object* make_ident_object(char *ident) {
+    m_object* result = (m_object*) malloc(sizeof(m_object));
+    if (result != NULL) {
+        result->type = IDENT_OBJ;
+        result->value = malloc(strlen(ident)+1);
+        strcpy((char *)result->value, ident);
+    }
+    return result;
+}
+
+m_object* make_ref_object(m_object** ref) {
+    m_object* result = (m_object*) malloc(sizeof(m_object));
+    if (result != NULL) {
+        result->type = REF_OBJ;
+        result->value = (void *)ref;
+    }
+
+    return result;
+}
+
 m_object* make_string_object(char *string) {
     m_object* result = (m_object*) malloc(sizeof(m_object));
-    printf("makeing string object\n");
     if (result != NULL) {
         char *newstr = (char *) malloc(strlen(string));
         result->type = STRING_OBJ;
@@ -86,11 +105,16 @@ void set_identifier(m_state* state, char *identifier,  m_object* value) {
 
 m_object** get_lvalue(m_state* state, char *identifier) {
     m_namespace *ns = state->cur_namespace;
-    m_object **result = NULL;
-    while(ns != NULL && (*result = get(ns->namespace_table, identifier)) == NULL) {
+    m_object *result_obj = get(ns->namespace_table, identifier);
+    while(ns != NULL && result_obj == NULL) {
+        result_obj =  get(ns->namespace_table, identifier);
         ns = ns->next_namespace;
     }
-    return result;
+    if (result_obj != NULL) 
+        return &result_obj;
+    else
+        return NULL;
+
 }
 
 m_object* get_identifier(m_state* state, char *identifier) {
@@ -99,7 +123,11 @@ m_object* get_identifier(m_state* state, char *identifier) {
     while(ns != NULL && (result = get(ns->namespace_table, identifier)) == NULL) {
         ns = ns->next_namespace;
     }
-    return result;
+    if (result != NULL) {
+        return result;
+    } else {
+        return get_nill_object();
+    }
 }
 
 char *magic_object_tostring(m_object *obj) {

@@ -5,6 +5,9 @@
 #define DOUBLE_OBJ 4
 #define MODULE_OBJ 5
 #define NILL_OBJ    6
+// for internal use only
+#define REF_OBJ     7
+#define IDENT_OBJ   8
 
 struct magic_object;
 struct magic_context;
@@ -61,6 +64,11 @@ m_object* get_identifier(m_state * state, char *identifier);
 m_object* make_string_object(char *string);
 m_object* make_int_object(int value);
 m_object* make_double_object(double value);
+m_object* make_ident_object(char *ident);
+m_object* make_ref_object(m_object** ref);
+
 m_state* new_magic_state();
 void free_magic_object(m_object *obj);
 char *magic_object_tostring(m_object *ojb);
+m_object** get_lvalue(m_state* state, char *identifier);
+void set_identifier(m_state* state, char *identifier,  m_object* value);
