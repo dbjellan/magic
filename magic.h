@@ -56,9 +56,11 @@ struct magic_state {
 #endif
 typedef struct magic_state m_state;
 
-m_object* get_identifier(char *identifier);
+m_object* get_identifier(m_state * state, char *identifier);
 
-m_object* make_magic_object(char *string);
-m_object* make_magic_object(int value);
-m_object* make_magic_object(double value);
+m_object* make_string_object(char *string);
+m_object* make_int_object(int value);
+m_object* make_double_object(double value);
+m_state* new_magic_state();
 void free_magic_object(m_object *obj);
+char *magic_object_tostring(m_object *ojb);

@@ -1,7 +1,10 @@
 CC=g++
 CFLAGS=-Wall
 
-all: regenerate main
+debug: all
+debug: CFLAGS += -DDEBUG -g
+
+all: clean regenerate main
 
 regenerate:
 	yacc -d grammar.y
@@ -32,4 +35,4 @@ data.o:
 	$(CC) $(CFLAGS) -c data.c
 
 clean:
-	rm *.o magic lex.yy.c y.tab.h y.tab.c
+	rm -f *.o magic lex.yy.c y.tab.h y.tab.c

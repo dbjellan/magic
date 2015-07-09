@@ -1,12 +1,14 @@
 %{
     #include    <stdio.h>
-    int yylex(void);
-    void yyerror(char *);   
 
     #include    "magic.h"
     #include    "ast.h"
 
+    int yylex(void);
+    void yyerror(char *);   
 
+
+    extern int readInputForLexer(char* buffer,int *numBytesRead,int maxBytesToRead);
     ast_node* root;
 %}
 %code requires { #define YYSTYPE struct ast_node* }
@@ -14,14 +16,14 @@
 %token IDENT
 %token STRING
 %token FLOAT
-%token IF ELSE RETURN FUNCTION END DOT ASSIGN
+%token IF ELSE RETURN FUNCTION END DOT ASSIGN NEWLINE
 
 %%
 M       :   S                   { root  =  make_module($1);}
 
 S       :   S S                 { $$ = make_statements($1, $2);}
-        |   exp '\n'            { $$ = $1;}
-        |   lval ASSIGN exp '\n'  { $$ = make_assign($1, $3);}
+        |   exp NEWLINE            { $$ = $1;}
+        |   lval ASSIGN exp NEWLINE  { $$ = make_assign($1, $3);}
         |   FUNCTION IDENT '(' varlist ')' S END    { $$ = make_func($2, $4, $6);}
         ;
 

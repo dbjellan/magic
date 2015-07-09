@@ -42,3 +42,6 @@ struct ast_node* make_module(struct ast_node *statements);
 struct ast_node* make_statements(struct ast_node *s1, struct ast_node *s2);
 struct ast_node* make_varlist(struct ast_node *a, struct ast_node *b);
 struct ast_node* make_arglist(struct ast_node *a, struct ast_node *b);
+
+
+struct magic_object* ast_execute(m_state * state, struct ast_node* node);

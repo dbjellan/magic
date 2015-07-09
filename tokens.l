@@ -1,15 +1,20 @@
 %{
     #include <stdlib.h>
-    void yyerror(char *);
-    #include "y.tab.h"
 
+    #include "y.tab.h"
     #include "magic.h"
+
+    void yyerror(char *);
 
     int nchar, nword;
     int linenum = 0;
 
     #define YYSTYPE struct ast_node*
     extern YYSTYPE yylval;
+
+    extern int readInputForLexer(char* buffer,int *numBytesRead,int maxBytesToRead);
+    #undef YY_INPUT
+    #define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
 %}
 
 digit   [0-9]
@@ -42,7 +47,7 @@ end                             return END;
                                     return FLOAT;
                                 }
 
-"'"[^"'"]*"'"                    {
+\"[^\"]*\"                    {
                                     yylval = (struct ast_node*)yytext;
                                     return STRING;
                                 }
@@ -51,10 +56,9 @@ end                             return END;
 
 "\n"                            {
                                     linenum++;
-                                    ECHO;
+                                    return NEWLINE;
                                 }
 
-:=                              ECHO;
 
 [ \t]   ;
 

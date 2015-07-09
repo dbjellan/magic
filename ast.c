@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "magic.h"
@@ -42,7 +43,7 @@ struct ast_node* make_int_lit(struct ast_node *a) {
     int *value = (int *) malloc(sizeof(int));
     *value = converted;
     result->children = NULL;
-    result->type = AST_STRING_LIT;
+    result->type = AST_INT_LIT;
     result->value = (void *) value;
     return result;
 }
@@ -55,7 +56,7 @@ struct ast_node* make_float_lit(struct ast_node *a) {
     double *value = (double *) malloc(sizeof(double));
     *value = converted;
     result->children = NULL;
-    result->type = AST_STRING_LIT;
+    result->type = AST_FLOAT_LIT;
     result->value = (void *) value;
     return result;
 }
@@ -198,30 +199,61 @@ void free_ast_node(struct ast_node *node) {
             child++;
         }
     }
+    free(node->value);
     free(node);
 }
 
-struct magic_object* execute_ast(m_state * state, struct ast_node* node) {
+struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
+    struct magic_object* result;
+    magic_object* a = ast_execute(state, node->children[0]);
+    magic_object* b = ast_execute(state, node->children[1]);
+    printf("add type: %d\n", a->type);
+    printf("%d\n", b->type);
+    if (a->type == DOUBLE_OBJ && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+        double result_val = 0;
+        result_val = *(double *)node->children[0]->value + *(double *)node->children[1]->value;
+        result = make_double_object(result_val);
+    } else if (a->type == INT_OBJ && b->type == INT_OBJ) {
+        int result_val = 0;
+        result_val = *(int *)node->children[0]->value + *(int *)node->children[1]->value;
+        result = make_int_object(result_val);
+    } else {
+        fatal("can't add objects, raise exception here");
+    }
+    return result;
+}
+
+struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* node) {
+    char* identifier = (char *)node->value;
+    
+}
+
+struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
     struct magic_object* result = NULL;
     switch (node->type) {
         case AST_STRING_LIT:
-            result = make_magic_object((char *)node->value);
+            result = make_string_object((char *)node->value);
             return result;
         case AST_INT_LIT:
-            result = make_magic_object(*(int *)node->value);
+            result = make_int_object(*(int *)node->value);
             return result;
         case AST_FLOAT_LIT:
-            result = make_magic_object(*(double *)node->value);
+            result = make_double_object(*(double *)node->value);
             return result;
+        case AST_ADD:
+            return ast_execute_add(state, node);
         case AST_ASSIGN: {
-            magic_object *rexp = execute_ast(state, node->children[0]);
+            magic_object *rexp = ast_execute(state, node->children[0]);
             m_object **lvalue = (m_object **) rexp->value;
-            m_object *rvalue = execute_ast(state, node->children[1]);
+            m_object *rvalue = ast_execute(state, node->children[1]);
             *lvalue = rvalue;
             free_magic_object(*lvalue);
             return rvalue;
         }
-
+        case AST_LVAL_IDENTIFIER: 
+            ast_execute_lval_ident(state, node)
+        case AST_MODULE:
+            return ast_execute(state, node->children[0]);
         default:
             fatal("Illegal internal state");
     }

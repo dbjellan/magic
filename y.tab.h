@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,10 +40,10 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 12 "grammar.y" /* yacc.c:1915  */
+#line 14 "grammar.y" /* yacc.c:1909  */
  #define YYSTYPE struct ast_node* 
 
-#line 47 "y.tab.h" /* yacc.c:1915  */
+#line 47 "y.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -60,7 +60,8 @@ extern int yydebug;
     FUNCTION = 265,
     END = 266,
     DOT = 267,
-    ASSIGN = 268
+    ASSIGN = 268,
+    NEWLINE = 269
   };
 #endif
 /* Tokens.  */
@@ -75,6 +76,7 @@ extern int yydebug;
 #define END 266
 #define DOT 267
 #define ASSIGN 268
+#define NEWLINE 269
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

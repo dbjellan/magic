@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.0.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -65,16 +65,18 @@
 #line 1 "grammar.y" /* yacc.c:339  */
 
     #include    <stdio.h>
-    int yylex(void);
-    void yyerror(char *);   
 
     #include    "magic.h"
     #include    "ast.h"
 
+    int yylex(void);
+    void yyerror(char *);   
 
+
+    extern int readInputForLexer(char* buffer,int *numBytesRead,int maxBytesToRead);
     ast_node* root;
 
-#line 78 "y.tab.c" /* yacc.c:339  */
+#line 80 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -104,10 +106,10 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 12 "grammar.y" /* yacc.c:355  */
+#line 14 "grammar.y" /* yacc.c:355  */
  #define YYSTYPE struct ast_node* 
 
-#line 111 "y.tab.c" /* yacc.c:355  */
+#line 113 "y.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -124,7 +126,8 @@ extern int yydebug;
     FUNCTION = 265,
     END = 266,
     DOT = 267,
-    ASSIGN = 268
+    ASSIGN = 268,
+    NEWLINE = 269
   };
 #endif
 /* Tokens.  */
@@ -139,6 +142,7 @@ extern int yydebug;
 #define END 266
 #define DOT 267
 #define ASSIGN 268
+#define NEWLINE 269
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -156,7 +160,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 160 "y.tab.c" /* yacc.c:358  */
+#line 164 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -412,7 +416,7 @@ union yyalloc
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   268
+#define YYMAXUTOK   269
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -422,7 +426,7 @@ union yyalloc
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      14,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
       15,    16,    20,    18,    17,    19,     2,    21,     2,     2,
@@ -447,16 +451,16 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    20,    20,    22,    23,    24,    25,    28,    29,    31,
-      32,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      46,    47,    50,    51
+       0,    22,    22,    24,    25,    26,    27,    30,    31,    33,
+      34,    37,    38,    39,    40,    41,    42,    43,    44,    45,
+      48,    49,    52,    53
 };
 #endif
 
@@ -466,7 +470,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "INT", "IDENT", "STRING", "FLOAT", "IF",
-  "ELSE", "RETURN", "FUNCTION", "END", "DOT", "ASSIGN", "'\\n'", "'('",
+  "ELSE", "RETURN", "FUNCTION", "END", "DOT", "ASSIGN", "NEWLINE", "'('",
   "')'", "','", "'+'", "'-'", "'*'", "'/'", "$accept", "M", "S", "varlist",
   "arglist", "exp", "rval", "lval", YY_NULLPTR
 };
@@ -478,7 +482,7 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,    10,    40,    41,    44,    43,    45,
+     265,   266,   267,   268,   269,    40,    41,    44,    43,    45,
       42,    47
 };
 # endif
@@ -1254,127 +1258,127 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 20 "grammar.y" /* yacc.c:1661  */
+#line 22 "grammar.y" /* yacc.c:1646  */
     { root  =  make_module((yyvsp[0]));}
-#line 1260 "y.tab.c" /* yacc.c:1661  */
+#line 1264 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 22 "grammar.y" /* yacc.c:1661  */
+#line 24 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_statements((yyvsp[-1]), (yyvsp[0]));}
-#line 1266 "y.tab.c" /* yacc.c:1661  */
+#line 1270 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 23 "grammar.y" /* yacc.c:1661  */
+#line 25 "grammar.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]);}
-#line 1272 "y.tab.c" /* yacc.c:1661  */
+#line 1276 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 24 "grammar.y" /* yacc.c:1661  */
+#line 26 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_assign((yyvsp[-3]), (yyvsp[-1]));}
-#line 1278 "y.tab.c" /* yacc.c:1661  */
+#line 1282 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 25 "grammar.y" /* yacc.c:1661  */
+#line 27 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_func((yyvsp[-5]), (yyvsp[-3]), (yyvsp[-1]));}
-#line 1284 "y.tab.c" /* yacc.c:1661  */
+#line 1288 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 28 "grammar.y" /* yacc.c:1661  */
+#line 30 "grammar.y" /* yacc.c:1646  */
     {make_identifier((yyvsp[0]));}
-#line 1290 "y.tab.c" /* yacc.c:1661  */
+#line 1294 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 29 "grammar.y" /* yacc.c:1661  */
+#line 31 "grammar.y" /* yacc.c:1646  */
     {make_varlist((yyvsp[-2]), (yyvsp[0]));}
-#line 1296 "y.tab.c" /* yacc.c:1661  */
+#line 1300 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 32 "grammar.y" /* yacc.c:1661  */
+#line 34 "grammar.y" /* yacc.c:1646  */
     {   make_arglist((yyvsp[-2]), (yyvsp[0]));}
-#line 1302 "y.tab.c" /* yacc.c:1661  */
+#line 1306 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 36 "grammar.y" /* yacc.c:1661  */
+#line 38 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_function_call((yyvsp[-3]), (yyvsp[-1]));}
-#line 1308 "y.tab.c" /* yacc.c:1661  */
+#line 1312 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 37 "grammar.y" /* yacc.c:1661  */
+#line 39 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_int_lit((yyvsp[0]));}
-#line 1314 "y.tab.c" /* yacc.c:1661  */
+#line 1318 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 38 "grammar.y" /* yacc.c:1661  */
+#line 40 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_string_lit((yyvsp[0]));}
-#line 1320 "y.tab.c" /* yacc.c:1661  */
+#line 1324 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 39 "grammar.y" /* yacc.c:1661  */
+#line 41 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_add((yyvsp[-2]), (yyvsp[0]));}
-#line 1326 "y.tab.c" /* yacc.c:1661  */
+#line 1330 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 40 "grammar.y" /* yacc.c:1661  */
+#line 42 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_sub((yyvsp[-2]), (yyvsp[0]));}
-#line 1332 "y.tab.c" /* yacc.c:1661  */
+#line 1336 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 41 "grammar.y" /* yacc.c:1661  */
+#line 43 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_mult((yyvsp[-2]), (yyvsp[0]));}
-#line 1338 "y.tab.c" /* yacc.c:1661  */
+#line 1342 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 42 "grammar.y" /* yacc.c:1661  */
+#line 44 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_div((yyvsp[-2]), (yyvsp[0]));}
-#line 1344 "y.tab.c" /* yacc.c:1661  */
+#line 1348 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 43 "grammar.y" /* yacc.c:1661  */
+#line 45 "grammar.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]);}
-#line 1350 "y.tab.c" /* yacc.c:1661  */
+#line 1354 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 46 "grammar.y" /* yacc.c:1661  */
+#line 48 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_identifier((yyvsp[0]));}
-#line 1356 "y.tab.c" /* yacc.c:1661  */
+#line 1360 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 47 "grammar.y" /* yacc.c:1661  */
+#line 49 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_field((yyvsp[-2]), (yyvsp[0]));}
-#line 1362 "y.tab.c" /* yacc.c:1661  */
+#line 1366 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 50 "grammar.y" /* yacc.c:1661  */
+#line 52 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_lval_identifier((yyvsp[0]));}
-#line 1368 "y.tab.c" /* yacc.c:1661  */
+#line 1372 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 51 "grammar.y" /* yacc.c:1661  */
+#line 53 "grammar.y" /* yacc.c:1646  */
     { (yyval) = make_lval_access((yyvsp[-2]), (yyvsp[0]));}
-#line 1374 "y.tab.c" /* yacc.c:1661  */
+#line 1378 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1378 "y.tab.c" /* yacc.c:1661  */
+#line 1382 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1602,7 +1606,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 54 "grammar.y" /* yacc.c:1906  */
+#line 56 "grammar.y" /* yacc.c:1906  */
 
 
 void yyerror(char *s) {

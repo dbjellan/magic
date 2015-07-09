@@ -49,6 +49,7 @@ m_object* get(m_hash_table *table, char *key) {
     }
     return NULL;
 }
+
 m_object** get_lvalue(m_hash_table *table, char *key) {
     unsigned int hash_value = hash(key, table->size);
     m_hashentry *bin_entry = table->table[hash_value];
@@ -59,6 +60,10 @@ m_object** get_lvalue(m_hash_table *table, char *key) {
         bin_entry = bin_entry->next;
     }
     return NULL;
+}
+
+m_object** get_lvalue(m_state *table, char *key) {
+
 }
 
 void resize(m_hash_table *table, unsigned int new_size) {
