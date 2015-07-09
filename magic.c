@@ -8,6 +8,15 @@
 #define INT_STRING_LENGTH 20
 #define DOUBLE_STRING_LENGTH 20
 
+m_object* make_nill_object() {
+    m_object* result = (m_object*) malloc(sizeof(m_object));
+    if (result != NULL) {
+        result->type = NILL_OBJ;
+        result->value = NULL;
+    }
+    return result;    
+}
+
 m_object* make_ident_object(char *ident) {
     m_object* result = (m_object*) malloc(sizeof(m_object));
     if (result != NULL) {
@@ -126,7 +135,7 @@ m_object* get_identifier(m_state* state, char *identifier) {
     if (result != NULL) {
         return result;
     } else {
-        return get_nill_object();
+        return make_nill_object();
     }
 }
 
