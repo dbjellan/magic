@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-Wall -std=c99
+CC=g++
+CFLAGS=-Wall
 
 debug: all
 debug: CFLAGS += -DDEBUG -g

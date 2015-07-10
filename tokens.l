@@ -15,6 +15,7 @@
     extern int readInputForLexer(char* buffer,size_t *numBytesRead,int maxBytesToRead);
     #undef YY_INPUT
     #define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
+
 %}
 
 digit   [0-9]
@@ -28,22 +29,29 @@ return                          return RETURN;
 function                        return FUNCTION;
 end                             return END;
 
-":="                            return ASSIGN;
-"."                             return DOT;
+\:\=                                return ASSIGN;
+\.                                  return DOT;
 
 {letter}({letter}|{digit})*     {   
-                                    yylval = (struct ast_node*)yytext;
+                                    char *text = (char *)malloc(yyleng+1);
+                                    strcpy(text, yytext);
+                                    yylval = (struct ast_node*)text;
+                                    //printf("yylval: %s\n", (char *)text);
                                     return IDENT;
 
                                 }
 
 {digit}+                        {   
-                                    yylval = (struct ast_node*)yytext;
+                                    char *text = (char *)malloc(yyleng+1);
+                                    strcpy(text, yytext);
+                                    yylval = (struct ast_node*)text;
                                     return INT;
                                 }
 
 {digit}+\.{digit}*             {
-                                    yylval = (struct ast_node*)yytext;
+                                    char *text = (char *)malloc(yyleng+1);
+                                    strcpy(text, yytext);
+                                    yylval = (struct ast_node*)text;
                                     return FLOAT;
                                 }
 
@@ -62,7 +70,7 @@ end                             return END;
 
 [ \t]   ;
 
-"#".*   ;
+\#.*   ;
 
 .                               yyerror("invalid token");
 

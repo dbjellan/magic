@@ -84,13 +84,10 @@ struct ast_node* make_field(struct ast_node * a, struct ast_node * b) {
 } 
 
 struct ast_node* make_lval_identifier(struct ast_node *a) {
-    char *text = (char *) a;
     struct ast_node* result = (struct ast_node*) malloc(sizeof(struct ast_node));
-    char *value = (char *) malloc(strlen(text)+1);
-    strcpy(value, text);
     result->children = NULL;
     result->type = AST_LVAL_IDENTIFIER;
-    result->value = (void *) value; 
+    result->value = (void *) a; 
     return result;
 }
 
@@ -207,7 +204,7 @@ struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
     struct magic_object* result;
     magic_object* a = ast_execute(state, node->children[0]);
     magic_object* b = ast_execute(state, node->children[1]);
-    if ((a->type == DOUBLE_OBJ ||b->type == INT_OBJ ) || (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+    if ((a->type == DOUBLE_OBJ ||a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
         if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
         double result_val = 0;
         result_val = *(double *)node->children[0]->value + *(double *)node->children[1]->value;
@@ -259,6 +256,7 @@ struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
                 free_magic_object(lexp);
             } else {
                 // object is IDENT_OBJ
+                printf("setting new identifier");
                 set_identifier(state, (char *)lexp->value, rvalue);
             }
             return rvalue;

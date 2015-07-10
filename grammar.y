@@ -51,7 +51,7 @@ rval    :   IDENT               { $$ = make_identifier($1);}
         ;
 
 lval    :   IDENT               { $$ = make_lval_identifier($1);}
-        |   lval DOT IDENT      { $$ = make_lval_access($1, $3);}
+        |   lval    DOT IDENT      { $$ = make_lval_access($1, $3);}
         ;
 
 %%

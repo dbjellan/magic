@@ -1,13 +1,14 @@
-#define _GNU_SOURCE
+/*#define _GNU_SOURCE
 #define __USE_GNU
-#include <search.h>
+#include <search.h>*/
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "magic.h"
 #include "data.h"
 
-m_hash_table* new_hash_table(int size) {
+/*m_hash_table* new_hash_table(int size) {
     m_hash_table* table = (m_hash_table*) malloc(sizeof(m_hash_table));
     if (table) {
         table->hash_table = (struct hsearch_data*) calloc(1, sizeof(struct hsearch_data);
@@ -76,7 +77,7 @@ m_object* get(m_hash_table *table, char *key) {
         return &table->object_ptrs[indx];
     }  
 }*/
-
+/*
 void destroy_hash_table(m_hash_table *table) {
     for(int i=0; i < table->length; i++) {
         free(table->keys[i]);
@@ -103,12 +104,12 @@ void resize(m_hash_table *table, unsigned int new_size) {
     table->size = new_size;
     table->hash_table = new_hsearch;
 }
+*/
 
-
-/*m_hash_table* new_hash_table(int size) {
+m_hash_table* new_hash_table(int size) {
     m_hash_table* table = (m_hash_table*) malloc(sizeof(m_hash_table));
     if (table) {
-        table->table = (magic_hash_entry **) malloc(sizeof(struct magic_hash_entry**)*size);
+        table->table = (magic_hash_entry **) malloc(sizeof(struct magic_hash_entry*)*size);
         table->size = size;
         for (int i = 0; i < size; i++) {
             table->table[i] = NULL;
@@ -118,36 +119,29 @@ void resize(m_hash_table *table, unsigned int new_size) {
 }
 
 
-unsigned int hash(const char *key, unsigned int m) {
-    size_t length = strlen(key);
-    unsigned int value = NULL;
-    int i = 0;
-    unsigned int result = 0;
-    unsigned int highorder = 0;
-    while (i*4 < length) {
-        value = ((unsigned int *)key)[i];
-        highorder = result & 0xf8000000;
-        result = result << 5;
-        result = result ^ (highorder >> 27);
-        result = result ^ value;
-        i++;
+uint32_t hash(const char *key, unsigned int m) {
+    uint32_t hash, i;
+    uint32_t len = strlen(key);
+    for(hash = i = 0; i < len; ++i)
+    {
+        hash += key[i];
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
     }
-    if (length % 4 != 0) {
-        value = 0;
-        memcpy((void *) &value, (void *) key[4*(i-1)], length % 4);
-        highorder = result & 0xf8000000;
-        result = result << 5;
-        result = result ^ (highorder >> 27);
-        result = result ^ value;
-    }
-    return result % m;
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash += (hash << 15);
+    return hash % m;
 }
 
 m_object* get(m_hash_table *table, char *key) {
     unsigned int hash_value = hash(key, table->size);
+    printf("key: %s\n", key);
+    printf("hashvalue: %d tablesize: %d\n", hash_value, table->size);
     m_hashentry *bin_entry = table->table[hash_value];
     while (bin_entry != NULL) {
         if (strcmp(key, bin_entry->key) == 0) {
+            printf("found object\n");
             return bin_entry->value;
         }
         bin_entry = bin_entry->next;
@@ -187,13 +181,19 @@ void set(m_hash_table *table, char *key, m_object *value) {
     unsigned int hash_val = hash(key, table->size);
     m_hashentry *bin_entry = table->table[hash_val];
     bool found = false;
-    while (bin_entry != NULL) {
-        if (strcmp(key, bin_entry->key) == 0) {
-            bin_entry->value = value;
-            found = true;
-            break;
-        }
-    } 
+    if (table->table[hash_val] != NULL) {
+        while (true) {
+            if (strcmp(key, bin_entry->key) == 0) {
+                bin_entry->value = value;
+                found = true;
+                break;
+            } else if (bin_entry->next == NULL) {
+                break;
+            } else {
+                bin_entry = bin_entry->next;
+            }
+        } 
+    }
     if (!found) {
         bin_entry = (m_hashentry *)malloc(sizeof(m_hashentry));
         if (bin_entry) {
@@ -203,4 +203,16 @@ void set(m_hash_table *table, char *key, m_object *value) {
             bin_entry->value = value;
         }
     }
-}*/
+}
+
+void print_table(m_hash_table *table) {
+    for (int i = 0; i < table->size; i++) {
+        if (table->table[i] != NULL) {
+            printf("slot %d\n", i);
+            m_hashentry *cur = table->table[i];
+            while  (cur != NULL) {
+                printf("pair %s : %s\n", cur->key, magic_object_tostring(cur->value));
+            }
+        }
+    }
+}

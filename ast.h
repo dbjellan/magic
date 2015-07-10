@@ -28,7 +28,7 @@ struct ast_node* make_field(struct ast_node *a, struct ast_node *b);
 struct ast_node* make_lval_identifier(struct ast_node *text);
 struct ast_node* make_lval_access(struct ast_node *a, struct ast_node * b);
 struct ast_node* make_assign(struct ast_node* lvalue, struct ast_node* rvalue);
-struct ast_node* make_lval_identifier(struct ast_node * a);
+struct ast_node* make_lval_identifier(char * a);
 struct ast_node* make_lval_access(struct ast_node * a, struct ast_node* b); 
 struct ast_node* make_add(struct ast_node * a, struct ast_node *b);
 struct ast_node* make_sub(struct ast_node * a, struct ast_node *b);

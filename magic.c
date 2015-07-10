@@ -129,10 +129,12 @@ m_object** get_lvalue(m_state* state, char *identifier) {
 m_object* get_identifier(m_state* state, char *identifier) {
     m_namespace *ns = state->cur_namespace;
     m_object *result = NULL;
+    print_table(ns->namespace_table);
     while(ns != NULL && (result = get(ns->namespace_table, identifier)) == NULL) {
         ns = ns->next_namespace;
     }
     if (result != NULL) {
+        printf("found identifier\n");
         return result;
     } else {
         return make_nill_object();
@@ -145,7 +147,7 @@ char *magic_object_tostring(m_object *obj) {
         case NILL_OBJ: {
             char *nill_string = "nill";
             result = (char *) malloc(strlen(nill_string)+1);
-            strcpy(result, (char *)obj->value);
+            strcpy(result, nill_string);
             break;
         }
         case INT_OBJ:
