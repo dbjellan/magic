@@ -1,3 +1,6 @@
+#define _GNU_SOURCE
+#define __USE_GNU
+#include <search.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -5,6 +8,104 @@
 #include "data.h"
 
 m_hash_table* new_hash_table(int size) {
+    m_hash_table* table = (m_hash_table*) malloc(sizeof(m_hash_table));
+    if (table) {
+        table->hash_table = (struct hsearch_data*) calloc(1, sizeof(struct hsearch_data);
+        hcreate_r(size, table->hash_table);
+        table->size = size;
+        table->length = 0;
+        table->keys = (char **) malloc(size*sizeof(char *));
+        table->object_ptrs = (m_object **) malloc(size*sizeof(m_object *));
+    }
+    return table;
+}
+
+void set(m_hash_table *table, char *key, m_object *value) {
+    ENTRY ep;
+    ep.key = key;
+    ep.data = NULL;
+    ENTRY **result;
+    long indx;
+    hsearch_r(ep, FIND, result, table->hash_table);
+    if (result != NULL) {
+        indx = (long)(*result)->data;
+        table->object_ptrs[indx] = value;
+    } else {
+        char *key_copy = (char *) malloc(strlen(key)+1);
+        strcpy(key_copy, key);
+        if (table->length >= table->size) {
+            resize_hashtable(table, table->size*2);
+        }
+        indx = table->length;
+        table->length++;
+        ep.data = (void *)indx;
+        hsearch_r(ep, ENTER, result, table->hash_table);
+        table->keys[indx] = key_copy;
+        table->object_ptrs[indx] = value;
+    }
+}
+
+m_object* get(m_hash_table *table, char *key) {
+    ENTRY ep;
+    ep.key = key;
+    ep.data = NULL;
+    ENTRY **result;
+    long indx;
+    hsearch_r(ep, FIND, result, table->hash_table);
+    if (result == NULL) {
+        return NULL;
+    }
+    else {
+        indx = (long)(*result)->data;
+        return table->object_ptrs[indx];
+    }
+}
+
+/*m_object** get_lvalue(m_hash_table *table, char *key) {
+    ENTRY ep;
+    ep.key = key;
+    ep.data = NULL;
+    ENTRY **result;
+    long indx;
+    hsearch_r(ep, FIND, result, table->hash_table);
+    if (result == NULL) {
+        return NULL;
+    }
+    else {
+        indx = (long)(*result)->data;
+        return &table->object_ptrs[indx];
+    }  
+}*/
+
+void destroy_hash_table(m_hash_table *table) {
+    for(int i=0; i < table->length; i++) {
+        free(table->keys[i]);
+    }
+    free(table->keys);
+    free(table->object_ptrs);
+    hdestroy_r(table->hash_table);
+    free(table);
+}
+
+void resize(m_hash_table *table, unsigned int new_size) {
+    struct hsearch_data* new_hsearch = (struct hsearch_data*) calloc(1, sizeof(struct hsearch_data);
+    hcreate_r(new_size, new_hsearch);
+    ENTRY ep;
+    ENTRY **result;
+    for(long i = 0; i < table->length; i++) {
+        ep.key = table->keys[i];
+        ep.data = (void *)i;
+        hsearch_r(ep, ENTER, result, new_hsearch);
+    }
+    hdestroy_r(table->hash_table);
+    table->keys = (char **) realloc(table->keys, new_size*sizeof(char *));
+    table->object_ptrs = (m_object **) realloc(table->object_ptrs, new_size*sizeof(m_object *));
+    table->size = new_size;
+    table->hash_table = new_hsearch;
+}
+
+
+/*m_hash_table* new_hash_table(int size) {
     m_hash_table* table = (m_hash_table*) malloc(sizeof(m_hash_table));
     if (table) {
         table->table = (magic_hash_entry **) malloc(sizeof(struct magic_hash_entry**)*size);
@@ -102,4 +203,4 @@ void set(m_hash_table *table, char *key, m_object *value) {
             bin_entry->value = value;
         }
     }
-}
+}*/

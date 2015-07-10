@@ -22,24 +22,6 @@ struct magic_object {
 #endif
 typedef struct magic_object m_object;
 
-#ifndef MAGIC_HASH_ENTRY_DEFINED
-#define MAGIC_HASH_ENTRY_DEFINED
-struct magic_hash_entry {
-    struct magic_hash_entry *next;
-    char *key;
-    m_object *value;
-};
-#endif
-typedef struct magic_hash_entry m_hashentry;
-
-#ifndef MAGIC_HASH_TABLE_DEFINED
-#define MAGIC_HASH_TABLE_DEFINED
-struct magic_hash_table {
-    struct magic_hash_entry** table;
-    unsigned int size;
-};
-#endif
-typedef struct magic_hash_table m_hash_table;
 
 #ifndef MAGIC_NAMESPACE_DEFINED
 #define MAGIC_NAMESPACE_DEFINED
