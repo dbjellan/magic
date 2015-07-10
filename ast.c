@@ -204,14 +204,21 @@ struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
     struct magic_object* result;
     magic_object* a = ast_execute(state, node->children[0]);
     magic_object* b = ast_execute(state, node->children[1]);
-    if ((a->type == DOUBLE_OBJ ||a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+    if ((a->type == DOUBLE_OBJ || a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
         if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
-        double result_val = 0;
-        result_val = *(double *)node->children[0]->value + *(double *)node->children[1]->value;
-        result = make_double_object(result_val);
+            double result_val;
+            if (a->type == INT_OBJ) {
+                result_val = *(int *)a->value + *(double *)b->value;
+            } else if (b->type == INT_OBJ) {
+                result_val = *(double *)a->value + *(int *)b->value;
+            }
+            else {
+                result_val = *(double *)a->value + *(double *)b->value;
+            }
+            result = make_double_object(result_val);
         } else {
             int result_val = 0;
-            result_val = *(int *)node->children[0]->value + *(int *)node->children[1]->value;
+            result_val = *(int *)a->value + *(int *)b->value;
             result = make_int_object(result_val);
         }
     } else {
@@ -256,7 +263,6 @@ struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
                 free_magic_object(lexp);
             } else {
                 // object is IDENT_OBJ
-                printf("setting new identifier");
                 set_identifier(state, (char *)lexp->value, rvalue);
             }
             return rvalue;

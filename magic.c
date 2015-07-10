@@ -77,7 +77,8 @@ m_object* make_double_object(double value) {
 }
 
 void free_magic_object(m_object *obj) {
-    free(obj->value);
+    if (obj->type != REF_OBJ)
+        free(obj->value);
     free(obj);
 }
 
@@ -129,12 +130,10 @@ m_object** get_lvalue(m_state* state, char *identifier) {
 m_object* get_identifier(m_state* state, char *identifier) {
     m_namespace *ns = state->cur_namespace;
     m_object *result = NULL;
-    print_table(ns->namespace_table);
     while(ns != NULL && (result = get(ns->namespace_table, identifier)) == NULL) {
         ns = ns->next_namespace;
     }
     if (result != NULL) {
-        printf("found identifier\n");
         return result;
     } else {
         return make_nill_object();

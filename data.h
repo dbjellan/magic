@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-#include <search.h>
 
 #include "magic.h"
 

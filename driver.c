@@ -14,7 +14,7 @@ char *line;
 char *linepos;
 bool readfrombuf;
 
-int readInputForLexer(char *buffer, size_t *numBytesRead, int maxBytesToRead ) {
+int readInputForLexer(char *buffer, int *numBytesRead, int maxBytesToRead ) {
     if (readfrombuf) {
         size_t char_left = strlen(linepos);
         if (char_left > maxBytesToRead) {
