@@ -25,13 +25,23 @@ pm      "+"|"-"
 %%
 if                              return IF;
 else                            return ELSE;
+elseif                          return ELSEIF;
 return                          return RETURN;
 function                        return FUNCTION;
 end                             return END;
+in                              return IN;
+for                             return FOR;
+while                           return WHILE;
+try     return TRY;
+catch   return CATCH;
+throw   return THROW;
 
 \:\=                                return ASSIGN;
+\:                                  return COLON;
 \.                                  return DOT;
 
+\{  return LBRAC;
+\}  return RBRAC;
 {letter}({letter}|{digit})*     {   
                                     char *text = (char *)malloc(yyleng+1);
                                     strcpy(text, yytext);

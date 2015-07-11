@@ -16,7 +16,7 @@ struct magic_hash_table;
 #ifndef MAGIC_OBJECT_DEFINED
 #define MAGIC_OBJECT_DEFINED
 struct magic_object {    
-    short type;
+    int type;
     void *value;
 };
 #endif
