@@ -28,9 +28,15 @@
 #define AST_ELSE 26
 #define AST_ELSEIF 27
 #define AST_ELSEIF_ELSE 28
-#define AST_KVP 29
+//#define AST_KVP 29
 #define AST_KVPLIST 30
 #define AST_TABLE 31
+
+#define AST_EMPVARLIST 32
+#define AST_EMPARGLIST 33
+#define AST_EMPKVPLIST 34
+#define AST_LISTTABLE 35
+#define AST_EMPTABLE 36
 
 struct ast_node;
 

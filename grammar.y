@@ -38,20 +38,23 @@ elseblock   : ELSE COLON S END                        { $$ = make_internal_node(
             | ELSEIF COLON S END elseblock            { $$ = make_internal_node(AST_ELSEIF_ELSE, $3, $5);}
         ;
 
-varlist :   IDENT                                     {make_identifier($1);}
-        |   varlist     ','     varlist               {make_internal_node(AST_VARLIST, $1, $3);}
+//wrong
+varlist :
+        |   %empty                                    { $$ = make_ast_node(0, AST_EMPVARLIST);}   
+        |   varlist     ','     IDENT               { $$ = make_internal_node(AST_VARLIST, $1, make_identifier($3));}
+        ;
 
-arglist :   exp
-        |   arglist     ','     arglist {   make_internal_node(AST_ARGLIST, $1, $3);}
+arglist :   %empty                                         {$$ = make_ast_node(0, AST_EMPARGLIST);}
+        |   arglist     ',' exp                            { $$ = make_internal_node(AST_ARGLIST, $1, $3);}
         ;
      
-kvplist :   exp     COLON   exp         {}
-        |   kvplist     ',' kvplist     {}
+kvplist :   %empty                                      { $$ = make_ast_node(0, AST_EMPKVPLIST);}
+        |   kvplist     ',' lval COLON exp              { $$ = make_internal_node(AST_KVPLIST, $1, $3, $5);}
         ;
 
-exp     :   LBRAC arglist RBRAC     {}
-        |   LBRAC kvplist RBRAC     {}
-        |   LBRAC RBRAC            {}
+exp     :   LBRAC arglist RBRAC     { $$ = make_internal_node(AST_LISTTABLE, $2);}
+        |   LBRAC kvplist RBRAC     { $$ = make_internal_node(AST_TABLE, $2);}
+        |   LBRAC RBRAC            { $$ = make_ast_node(0, AST_EMPTABLE);}
         |   rval
         |   rval '(' arglist ')'   { $$ = make_internal_node(AST_FUNCTION, $1, $3);}
         |   INT                 { $$ = make_int_lit($1);}
