@@ -40,10 +40,10 @@ m_object* make_ref_object(m_object** ref) {
 m_object* make_string_object(char *string) {
     m_object* result = (m_object*) malloc(sizeof(m_object));
     if (result != NULL) {
-        char *newstr = (char *) malloc(strlen(string));
+        char *newstr = (char *) malloc(strlen(string)+1);
         result->type = STRING_OBJ;
         if (newstr != NULL) {
-            strcpy(newstr, string);
+            strcpy(newstr+1, string);
             result->value = (void *)newstr;
         }
     }
@@ -115,16 +115,13 @@ void set_identifier(m_state* state, char *identifier,  m_object* value) {
 
 m_object** get_lvalue(m_state* state, char *identifier) {
     m_namespace *ns = state->cur_namespace;
-    m_object *result_obj = get(ns->namespace_table, identifier);
+    m_object **result_obj = NULL;
+    result_obj = get_lvalue(ns->namespace_table, identifier);
     while(ns != NULL && result_obj == NULL) {
-        result_obj =  get(ns->namespace_table, identifier);
+        result_obj =  get_lvalue(ns->namespace_table, identifier);
         ns = ns->next_namespace;
     }
-    if (result_obj != NULL) 
-        return &result_obj;
-    else
-        return NULL;
-
+    return result_obj;
 }
 
 m_object* get_identifier(m_state* state, char *identifier) {

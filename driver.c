@@ -16,7 +16,7 @@ bool readfrombuf;
 
 int readInputForLexer(char *buffer, int *numBytesRead, int maxBytesToRead ) {
     if (readfrombuf) {
-        size_t char_left = strlen(linepos);
+        int char_left = strlen(linepos);
         if (char_left > maxBytesToRead) {
             memcpy(buffer, linepos, maxBytesToRead);
             *numBytesRead = maxBytesToRead;

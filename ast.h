@@ -17,8 +17,13 @@
 #define AST_STATEMENTS 16
 #define AST_ARGLIST 17
 #define AST_VARLIST 18
+#define AST_ACCESS 19
 
 struct ast_node;
+
+struct ast_node* make_ast_node(int numchildren, int type);
+struct ast_node* make_internal_node(int type, int numchildren, ...);
+
 
 struct ast_node* make_string_lit(struct ast_node * a);
 struct ast_node* make_int_lit(struct ast_node * a);

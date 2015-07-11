@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "magic.h"
 #include "ast.h"
@@ -11,6 +12,20 @@ struct ast_node {
     short int type;
     void * value;
 };
+
+struct ast_node* make_internal_node(int type, int numchildren, ...) {
+    va_list ap;
+    printf("making node %d\n", type);
+    struct ast_node* result = make_ast_node(type, numchildren);
+    va_start(ap, numchildren);
+    for (int i = 0; i < numchildren; i++) {
+        struct ast_node *node = (struct ast_node *)va_arg(ap, struct ast_node*);
+        printf("child %d type: %d\n", i, node->value);
+        result->children[i] = node;
+    }
+    result->value = NULL;
+    return result;
+}
 
 struct ast_node* make_ast_node(int numchildren, int type) {
     struct ast_node* result;
@@ -242,6 +257,7 @@ struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* no
 
 struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
     struct magic_object* result = NULL;
+    printf("executing node %d\n", node->type);
     switch (node->type) {
         case AST_STRING_LIT:
             result = make_string_object((char *)node->value);

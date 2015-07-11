@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-Wall -Wno-write-strings
 
 debug: all
 debug: CFLAGS += -DDEBUG -g

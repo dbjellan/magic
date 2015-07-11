@@ -65,7 +65,7 @@ void resize(m_hash_table *table, unsigned int new_size) {
         unsigned int old_size = table->size;
         result = new_hash_table(new_size);
         m_hashentry *cur_entry;
-        for(int i = 0; i < old_size; i++) {
+        for(unsigned int i = 0; i < old_size; i++) {
             cur_entry = table->table[i];
             while(cur_entry != NULL) {
                 set(result, cur_entry->key, cur_entry->value);
