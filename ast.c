@@ -240,24 +240,23 @@ struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* no
     return result;
 }
 
-// to get out of here
-void raise_uncaught(m_state * state) {
+struct magic_object *ast_execute_lval(m_state * state, struct ast_node* node) {
 
 }
 
 struct magic_object* ast_execute_trycatch(m_state * state, struct ast_node* node) {
-    jmp_buf env;
     struct magic_object *exception;
-    int result;
-    if ((result = setjmp(env)) == 0) {
-        register_exeception(state, env);
+    struct magic_object *result;
+    if (register_exception(state) == 0) {
         result = ast_execute(state, node->children[0]);
-        pop_exeception(state);
+        pop_exception(state);
     } else {
-        exception = (struct *magic_object) result;
-        pop_exeception(state);
-        // assign lval = exception
+        pop_exception(state);
+        push_scope(state);
+        if (state->cur_exception != NULL)
+            set_identifier(state, node->children[1]->value, state->cur_exception);
         result = ast_execute(state, node->children[2]);
+        pop_scope(state);
     }
     return result;
 }
@@ -265,10 +264,63 @@ struct magic_object* ast_execute_trycatch(m_state * state, struct ast_node* node
 struct magic_object* ast_execute_throw(m_state * state, struct ast_node* node) {
     if (state->catch_stack != NULL) {
         struct magic_object* val = ast_execute(state, node->children[0]);
-        longjmp(state->catch_stack->buf, (int) val);
+        state->cur_exception = val;
+        longjmp(state->catch_stack->buf, 1);
     } else {
         raise_uncaught(state);
     }
+}
+
+char ** make_arglist(struct ast_node* node) {
+
+}
+
+struct magic_object* ast_execute_function(m_state * state, struct ast_node* node) {
+    char **arglist = make_arglist(node->children[1]);
+    magic_object* func = make_magic_function(arglist, node->children[2]);
+}
+
+void new_cstack(m_state *state, struct ast_node* node) {
+
+}
+
+m_object *make_result_table(m_state *state, int numresults) {
+
+}
+
+struct magic_object* ast_execute_function_call(m_state * state, struct ast_node* node) {
+    struct magic_object* result;
+    struct magic_object* func_obj = ast_execute_lval(state, node->children[0]);
+    if (func_obj->type == CFUNCTION_OBJ) {
+        new_cstack(state, node->children[1]);
+        magic_cfunction func = func_obj->value;
+        int numresults = func(state);
+        result = make_result_table(state, numresults);
+    } else {
+        push_scope(state);
+        m_function *func = func_obj->value;
+        result = ast_execute(state, func->fcode.node);
+        pop_scope(state);
+    }
+    return result;
+}
+
+/* Execute ast and return and print and return any uncaught exceptions.
+ *
+ */
+struct magic_object* protected_ast_execute(m_state * state, struct ast_node* node) {
+    struct magic_object *result;
+    if (register_exception(state) == 0) {
+        result = ast_execute(state, node);
+    } else {
+        if (state->cur_exception != NULL) {
+            result = state->cur_exception;
+        } else {
+            printf("[*] Unknown uncaught exception.\n");
+            result  = make_nill_object();
+        }
+    }
+    return result;
 }
 
 struct magic_object* ast_execute(m_state * state, struct ast_node* node) {

@@ -4,20 +4,29 @@
 
 #include "magic.h"
 #include "data.h"
+#include "util.h"
 
 #define INT_STRING_LENGTH 20
 #define DOUBLE_STRING_LENGTH 20
 
-int register_exception(m_state *state, jmp_buf env) {
+void raise_uncaught(m_state *state) {
+    fatal("[*] Uncaught exception!");
+}
+
+int register_exception(m_state *state) {
+    int result;
     struct handler_entry* handler = (struct handler_entry*) malloc(sizeof(struct handler_entry));
     if (handler) {
-        handler->next = state->catch_stack;
-        //jmp_buf buf = 
-        handler->buf = env;
-        state->catch_stack = handler;
-        return 0;
+        if((result = setjmp(handler->buf)) == 0) {
+            handler->next = state->catch_stack;
+            //jmp_buf buf = 
+            state->catch_stack = handler;
+            return 0;
+        }
+        return result;
+    } else {
+        return -1;
     }
-    return -1;
 }
 
 void pop_exception(m_state *state) {
@@ -97,6 +106,18 @@ m_object* make_double_object(double value) {
     return result;
 }
 
+m_object* make_function_object(char **args, ast_node* code) {
+    m_object* result = (m_object*) malloc(sizeof(m_object));   
+    if (result != NULL) {
+        m_function* function = (m_function*) malloc(sizeof(m_function));
+        function->fcode.node = code;
+        function->arglist = args;
+        result->value = (void *)function;
+        result->type = FUNCTION_OBJ;
+    }
+    return result;
+}
+
 void free_magic_object(m_object *obj) {
     if (obj->type != REF_OBJ)
         free(obj->value);
@@ -123,6 +144,7 @@ m_state* new_magic_state() {
     if (newstate) {
         newstate->global_namespace = newglobalns;
         newstate->cur_namespace = newglobalns;
+        newstate->cur_exception = NULL;
         newstate->catch_stack = NULL;
     }
     return newstate;

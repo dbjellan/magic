@@ -10,6 +10,8 @@
 
     extern int readInputForLexer(char* buffer,size_t *numBytesRead,int maxBytesToRead);
     ast_node* root;
+    extern bool parseError; 
+    extern int linenum;
 %}
 %code requires { #define YYSTYPE struct ast_node* }
 %token INT
@@ -34,7 +36,7 @@ S       :   S S                                 { $$ = make_internal_node(AST_ST
         |   THROW exp  NEWLINE                  { $$ = make_internal_node(AST_THROW, $2);} 
         |   exp NEWLINE                         { $$ = $1;}
         |   lval ASSIGN exp NEWLINE             { $$ = make_internal_node(AST_ASSIGN, $1, $3);}
-        |   FUNCTION IDENT '(' varlist ')' S END %prec FUNCTION  { $$ = make_internal_node(AST_FUNCTION, $2, $4, $6);};
+        |   FUNCTION lval '(' varlist ')' S END %prec FUNCTION  { $$ = make_internal_node(AST_FUNCTION, $2, $4, $6);};
 
 elseblock   : ELSE COLON S END                        { $$ = make_internal_node(AST_ELSE, $3);}
             | ELSEIF COLON S END                      { $$ = make_internal_node(AST_ELSEIF, $3);}
@@ -84,5 +86,6 @@ lval    :   IDENT               { $$ = make_lval_identifier($1);}
 %%
 
 void yyerror(char *s) {
-    fprintf(stderr, "Error on line: %s\n", s);
+    fprintf(stderr, "Parser error on line: %d. Message: %s\n", linenum, s);
+    parseError = true;
 }

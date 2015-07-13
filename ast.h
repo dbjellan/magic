@@ -56,3 +56,4 @@ struct ast_node* make_identifier(struct ast_node * a);
 struct ast_node* make_lval_identifier(struct ast_node *text);
 
 struct magic_object* ast_execute(m_state * state, struct ast_node* node);
+struct magic_object* protected_ast_execute(m_state * state, struct ast_node* node);

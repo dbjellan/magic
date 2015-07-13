@@ -5,7 +5,7 @@
 #include "y.tab.h"
 #include "magic.h"
 #include "ast.h"
-#define MAX_LINE_LENGTH 1024
+#define MAX_CHUNK_LENGTH 10000
 
 extern ast_node *root;
 
@@ -14,7 +14,9 @@ char *line;
 char *linepos;
 bool readfrombuf;
 
-int readInputForLexer(char *buffer, int *numBytesRead, int maxBytesToRead ) {
+bool parseError = false;
+
+int readInputForLexer(char *buffer, size_t *numBytesRead, int maxBytesToRead ) {
     if (readfrombuf) {
         int char_left = strlen(linepos);
         if (char_left > maxBytesToRead) {
@@ -45,22 +47,30 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         readfrombuf = false;
         fp = fopen(argv[1], "r");
-        yyparse();
-        result = ast_execute(our_state, root);
+        if (!parseError) {
+            parseError = false;
+            yyparse();
+        } else {
+            result = protected_ast_execute(our_state, root);
+        }
     } else {
         readfrombuf = true;
-        size_t length = MAX_LINE_LENGTH;
+        size_t length = MAX_CHUNK_LENGTH;
         while (true) {
             printf(">> ");
             line = NULL;
             if(getline(&line, &length, stdin) != -1) {
                 linepos = line;
+                parseError = false;
                 yyparse();
-                result = ast_execute(our_state, root);
-                result_str = magic_object_tostring(result);
-                printf("%s\n", result_str);
-                free(result_str);
+                if (!parseError) {
+                    result = protected_ast_execute(our_state, root);
+                    result_str = magic_object_tostring(result);
+                    printf("%s\n", result_str);
+                    free(result_str);
+                }
                 free(line);
+
             } else {
                 printf("[*] Failed to read line from stdin\n");
             }
