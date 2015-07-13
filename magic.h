@@ -1,3 +1,5 @@
+#include <setjmp.h>
+
 #define INT_OBJ 0
 #define STRING_OBJ 1
 #define TABLE_OBJ 2
@@ -32,11 +34,20 @@ struct magic_namespace {
 #endif
 typedef struct magic_namespace m_namespace;
 
+#ifndef MAGIC_HANDLER_ENTRY_DEFINED
+#define MAGIC_HANDLER_ENTRY_DEFINED
+struct handler_entry {
+    struct handler_entry *next;
+    __jmp_buf_tag* buf; 
+};
+#endif
+
 #ifndef MAGIC_STATE_DEFINED
 #define MAGIC_STATE_DEFINED
 struct magic_state {
     struct magic_namespace* global_namespace;
     struct magic_namespace* cur_namespace;
+    struct handler_entry*   catch_stack;
 };
 #endif
 typedef struct magic_state m_state;
@@ -50,6 +61,9 @@ m_object* make_ident_object(char *ident);
 m_object* make_ref_object(m_object** ref);
 
 m_state* new_magic_state();
+int register_exception(m_state *state, jmp_buf env);
+void pop_exception(m_state *state);
+
 void free_magic_object(m_object *obj);
 char *magic_object_tostring(m_object *ojb);
 m_object** get_lvalue(m_state* state, char *identifier);

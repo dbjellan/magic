@@ -146,6 +146,87 @@ struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
     return result;
 }
 
+struct magic_object* ast_execute_sub(m_state * state, struct ast_node* node) {
+    struct magic_object* result;
+    magic_object* a = ast_execute(state, node->children[0]);
+    magic_object* b = ast_execute(state, node->children[1]);
+    if ((a->type == DOUBLE_OBJ || a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+        if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
+            double result_val;
+            if (a->type == INT_OBJ) {
+                result_val = *(int *)a->value - *(double *)b->value;
+            } else if (b->type == INT_OBJ) {
+                result_val = *(double *)a->value - *(int *)b->value;
+            }
+            else {
+                result_val = *(double *)a->value - *(double *)b->value;
+            }
+            result = make_double_object(result_val);
+        } else {
+            int result_val = 0;
+            result_val = *(int *)a->value - *(int *)b->value;
+            result = make_int_object(result_val);
+        }
+    } else {
+        fatal("can't add objects, raise exception here");
+    }
+    return result;
+}
+
+struct magic_object* ast_execute_mult(m_state * state, struct ast_node* node) {
+    struct magic_object* result;
+    magic_object* a = ast_execute(state, node->children[0]);
+    magic_object* b = ast_execute(state, node->children[1]);
+    if ((a->type == DOUBLE_OBJ || a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+        if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
+            double result_val;
+            if (a->type == INT_OBJ) {
+                result_val = *(int *)a->value * *(double *)b->value;
+            } else if (b->type == INT_OBJ) {
+                result_val = *(double *)a->value * *(int *)b->value;
+            }
+            else {
+                result_val = *(double *)a->value * *(double *)b->value;
+            }
+            result = make_double_object(result_val);
+        } else {
+            int result_val = 0;
+            result_val = *(int *)a->value * *(int *)b->value;
+            result = make_int_object(result_val);
+        }
+    } else {
+        fatal("can't add objects, raise exception here");
+    }
+    return result;
+}
+
+struct magic_object* ast_execute_div(m_state * state, struct ast_node* node) {
+    struct magic_object* result;
+    magic_object* a = ast_execute(state, node->children[0]);
+    magic_object* b = ast_execute(state, node->children[1]);
+    if ((a->type == DOUBLE_OBJ || a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
+        if (a->type == DOUBLE_OBJ || b->type == DOUBLE_OBJ) {
+            double result_val;
+            if (a->type == INT_OBJ) {
+                result_val = *(int *)a->value / *(double *)b->value;
+            } else if (b->type == INT_OBJ) {
+                result_val = *(double *)a->value / *(int *)b->value;
+            }
+            else {
+                result_val = *(double *)a->value / *(double *)b->value;
+            }
+            result = make_double_object(result_val);
+        } else {
+            int result_val = 0;
+            result_val = *(int *)a->value / *(int *)b->value;
+            result = make_int_object(result_val);
+        }
+    } else {
+        fatal("can't add objects, raise exception here");
+    }
+    return result;
+}
+
 struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* node) {
     char* identifier = (char *)node->value;
     m_object** val = get_lvalue(state, identifier);
@@ -159,9 +240,40 @@ struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* no
     return result;
 }
 
+// to get out of here
+void raise_uncaught(m_state * state) {
+
+}
+
+struct magic_object* ast_execute_trycatch(m_state * state, struct ast_node* node) {
+    jmp_buf env;
+    struct magic_object *exception;
+    int result;
+    if ((result = setjmp(env)) == 0) {
+        register_exeception(state, env);
+        result = ast_execute(state, node->children[0]);
+        pop_exeception(state);
+    } else {
+        exception = (struct *magic_object) result;
+        pop_exeception(state);
+        // assign lval = exception
+        result = ast_execute(state, node->children[2]);
+    }
+    return result;
+}
+
+struct magic_object* ast_execute_throw(m_state * state, struct ast_node* node) {
+    if (state->catch_stack != NULL) {
+        struct magic_object* val = ast_execute(state, node->children[0]);
+        longjmp(state->catch_stack->buf, (int) val);
+    } else {
+        raise_uncaught(state);
+    }
+}
+
 struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
     struct magic_object* result = NULL;
-    printf("executing node %d\n", node->type);
+    //printf("executing node %d\n", node->type);
     switch (node->type) {
         case AST_STRING_LIT:
             result = make_string_object((char *)node->value);
@@ -174,6 +286,24 @@ struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
             return result;
         case AST_ADD:
             return ast_execute_add(state, node);
+        case AST_SUB:
+            return ast_execute_sub(state, node);
+        case AST_MULT:
+            return ast_execute_mult(state, node);
+        case AST_DIV:
+            return ast_execute_div(state, node);
+        case AST_FUNCTION:
+
+        case AST_FUNCTION_CALL:
+        case AST_STATEMENTS:
+        case AST_IF_ELSE:
+        case AST_IF:
+        case AST_FOR:
+        case AST_WHILE:
+        case AST_TRY_CATCH:
+        case AST_THROW:
+        case AST_ELSE:
+        case AST_ELSEIF_ELSE:
         case AST_ASSIGN: {
             magic_object *lexp = ast_execute(state, node->children[0]);
             m_object *rvalue = ast_execute(state, node->children[1]);

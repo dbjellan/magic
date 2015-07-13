@@ -8,6 +8,27 @@
 #define INT_STRING_LENGTH 20
 #define DOUBLE_STRING_LENGTH 20
 
+int register_exception(m_state *state, jmp_buf env) {
+    struct handler_entry* handler = (struct handler_entry*) malloc(sizeof(struct handler_entry));
+    if (handler) {
+        handler->next = state->catch_stack;
+        //jmp_buf buf = 
+        handler->buf = env;
+        state->catch_stack = handler;
+        return 0;
+    }
+    return -1;
+}
+
+void pop_exception(m_state *state) {
+    if (state->catch_stack != NULL) {
+        struct handler_entry* new_top;
+        new_top = state->catch_stack->next;
+        free(state->catch_stack);
+        state->catch_stack = new_top;
+    }
+}
+
 m_object* make_nill_object() {
     m_object* result = (m_object*) malloc(sizeof(m_object));
     if (result != NULL) {
@@ -102,6 +123,7 @@ m_state* new_magic_state() {
     if (newstate) {
         newstate->global_namespace = newglobalns;
         newstate->cur_namespace = newglobalns;
+        newstate->catch_stack = NULL;
     }
     return newstate;
 

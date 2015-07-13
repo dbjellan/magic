@@ -18,20 +18,23 @@
 %token FLOAT
 %token IF ELSE ELSEIF IN FOR WHILE TRY CATCH THROW RETURN FUNCTION END DOT ASSIGN NEWLINE LBRAC RBRAC COLON
 
-%%
-M       :   S                   { root  =  make_internal_node(AST_MODULE, $1);}
+%left '-' '+'
+%left '*' '/'
+%right FUNCTION
 
-S       :   S S                 { $$ = make_internal_node(AST_STATEMENTS, $1, $2);}
-        |   IF exp COLON S END elseblock        {  $$ = make_internal_node(AST_IF_ELSE, $2, $4, $6);}
-        |   IF exp COLON S END                  {  $$ = make_internal_node(AST_IF, $2, $4);}
-        |   FOR lval IN exp COLON S END         {  $$ = make_internal_node(AST_FOR, $2, $4, $6);}
-        |   WHILE exp COLON S END               {  $$ = make_internal_node(AST_WHILE, $2, $4); }
-        |   TRY COLON S CATCH lval COLON S END              { $$ = make_internal_node(AST_TRY_CATCH, $3, $5, $7);}
-        |   THROW exp  NEWLINE                  {   $$ = make_internal_node(AST_THROW, $2);} 
-        |   exp NEWLINE            { $$ = $1;}
-        |   lval ASSIGN exp NEWLINE                 { $$ = make_internal_node(AST_ASSIGN, $1, $3);}
-        |   FUNCTION IDENT '(' varlist ')' S END    { $$ = make_internal_node(AST_FUNCTION, $2, $4, $6);}
-        ;
+%%
+M       :   S                                   { root  =  make_internal_node(AST_MODULE, $1);}
+
+S       :   S S                                 { $$ = make_internal_node(AST_STATEMENTS, $1, $2);}
+        |   IF exp COLON S END elseblock        { $$ = make_internal_node(AST_IF_ELSE, $2, $4, $6);}
+        |   IF exp COLON S END                  { $$ = make_internal_node(AST_IF, $2, $4);}
+        |   FOR lval IN exp COLON S END         { $$ = make_internal_node(AST_FOR, $2, $4, $6);}
+        |   WHILE exp COLON S END               { $$ = make_internal_node(AST_WHILE, $2, $4); }
+        |   TRY COLON S CATCH lval COLON S END  { $$ = make_internal_node(AST_TRY_CATCH, $3, $5, $7);}
+        |   THROW exp  NEWLINE                  { $$ = make_internal_node(AST_THROW, $2);} 
+        |   exp NEWLINE                         { $$ = $1;}
+        |   lval ASSIGN exp NEWLINE             { $$ = make_internal_node(AST_ASSIGN, $1, $3);}
+        |   FUNCTION IDENT '(' varlist ')' S END %prec FUNCTION  { $$ = make_internal_node(AST_FUNCTION, $2, $4, $6);};
 
 elseblock   : ELSE COLON S END                        { $$ = make_internal_node(AST_ELSE, $3);}
             | ELSEIF COLON S END                      { $$ = make_internal_node(AST_ELSEIF, $3);}
@@ -40,16 +43,19 @@ elseblock   : ELSE COLON S END                        { $$ = make_internal_node(
 
 //wrong
 varlist :
-        |   %empty                                    { $$ = make_ast_node(0, AST_EMPVARLIST);}   
-        |   varlist     ','     IDENT               { $$ = make_internal_node(AST_VARLIST, $1, make_identifier($3));}
+        |   %empty                          { $$ = make_ast_node(0, AST_EMPVARLIST);} 
+        |   varlist ',' varlist             { $$ = make_internal_node(AST_VARLIST, $1, make_identifier($3)); }
+        |   IDENT                           { $$ = make_internal_node(AST_VARLIST_IDENT, make_identifier($1));}
         ;
 
-arglist :   %empty                                         {$$ = make_ast_node(0, AST_EMPARGLIST);}
-        |   arglist     ',' exp                            { $$ = make_internal_node(AST_ARGLIST, $1, $3);}
+arglist :   %empty                   { $$ = make_ast_node(0, AST_EMPARGLIST);}
+        |   exp                      { $$ = make_internal_node(AST_ARGLIST_EXP, $1, make_identifier($1));} 
+        |   arglist ',' arglist      { $$ = make_internal_node(AST_ARGLIST, $1, $3);}
         ;
      
-kvplist :   %empty                                      { $$ = make_ast_node(0, AST_EMPKVPLIST);}
-        |   kvplist     ',' lval COLON exp              { $$ = make_internal_node(AST_KVPLIST, $1, $3, $5);}
+kvplist :   %empty                          { $$ = make_ast_node(0, AST_EMPKVPLIST);}
+        |   kvplist ',' kvplist             { $$ = make_internal_node(AST_KVPLIST, $1, $3);}
+        |   kvplist ',' lval COLON exp      { $$ = make_internal_node(AST_KVPLIST_KVP, $1, $3, $5);}
         ;
 
 exp     :   LBRAC arglist RBRAC     { $$ = make_internal_node(AST_LISTTABLE, $2);}

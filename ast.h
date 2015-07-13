@@ -38,6 +38,10 @@
 #define AST_LISTTABLE 35
 #define AST_EMPTABLE 36
 
+#define AST_KVPLIST_KVP 37
+#define AST_ARGLIST_EXP 38
+#define AST_VARLIST_IDENT 39
+
 struct ast_node;
 
 struct ast_node* make_ast_node(int numchildren, int type);

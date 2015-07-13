@@ -70,7 +70,7 @@ throw   return THROW;
                                     return STRING;
                                 }
 
-[-+()*]                         return *yytext;
+[-+()*/]                         return *yytext;
 
 "\n"                            {
                                     linenum++;
