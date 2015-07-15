@@ -1,0 +1,9 @@
+- finish lvalue code
+- finish rvalue/execute code
+- figure out what about metatable
+- make interepreter run loops/control structurs at once
+- implement through runtime exceptions
+- finish exception handling
+- finish function call code
+- other control stucture implementation
+- finish grammar (unary negation, ...)

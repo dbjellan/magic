@@ -120,7 +120,7 @@ void free_ast_node(struct ast_node *node) {
 }
 
 struct magic_object* ast_execute_add(m_state * state, struct ast_node* node) {
-    struct magic_object* result;
+    struct magic_object* result = NULL;
     magic_object* a = ast_execute(state, node->children[0]);
     magic_object* b = ast_execute(state, node->children[1]);
     if ((a->type == DOUBLE_OBJ || a->type == INT_OBJ ) && (b->type == INT_OBJ || b->type == DOUBLE_OBJ )) {
@@ -246,7 +246,7 @@ struct magic_object *ast_execute_lval(m_state * state, struct ast_node* node) {
         m_object *a = ast_execute_lval(state, node->children[0]);
         m_object *b = ast_execute_lval(state, node->children[1]);
         if (a->type == REF_OBJ) {
-            
+
         }
     } else if(node->type == AST_LVAL_IDENTIFIER) {
 
@@ -263,7 +263,7 @@ struct magic_object* ast_execute_trycatch(m_state * state, struct ast_node* node
         pop_exception(state);
         push_scope(state);
         if (state->cur_exception != NULL)
-            set_identifier(state, node->children[1]->value, state->cur_exception);
+            set_identifier(state, (char *)node->children[1]->value, state->cur_exception);
         result = ast_execute(state, node->children[2]);
         pop_scope(state);
     }
@@ -286,7 +286,7 @@ char ** make_arglist(struct ast_node* node) {
 
 struct magic_object* ast_execute_function(m_state * state, struct ast_node* node) {
     char **arglist = make_arglist(node->children[1]);
-    magic_object* func = make_magic_function(arglist, node->children[2]);
+    magic_object* func = make_function_object(arglist, node->children[2]);
 }
 
 void new_cstack(m_state *state, struct ast_node* node) {
@@ -302,12 +302,12 @@ struct magic_object* ast_execute_function_call(m_state * state, struct ast_node*
     struct magic_object* func_obj = ast_execute_lval(state, node->children[0]);
     if (func_obj->type == CFUNCTION_OBJ) {
         new_cstack(state, node->children[1]);
-        magic_cfunction func = func_obj->value;
+        magic_cfunction func = (magic_cfunction) func_obj->value;
         int numresults = func(state);
         result = make_result_table(state, numresults);
     } else {
         push_scope(state);
-        m_function *func = func_obj->value;
+        m_function *func = (m_function *) func_obj->value;
         result = ast_execute(state, func->fcode.node);
         pop_scope(state);
     }

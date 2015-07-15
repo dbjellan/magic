@@ -151,6 +151,13 @@ m_state* new_magic_state() {
 
 }
 
+void push_scope(m_state *state) {
+    return;
+}
+
+void pop_scope(m_state *state) {
+    return ;
+}
 
 void set_identifier(m_state* state, char *identifier,  m_object* value) {
     m_namespace *ns = state->cur_namespace;

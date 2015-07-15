@@ -72,6 +72,8 @@ typedef magic_function m_function;
 
 typedef int (*magic_cfunction)(m_state *state);
 
+void push_scope(m_state *state);
+void pop_scope(m_state *state);
 m_object* get_identifier(m_state * state, char *identifier);
 
 m_object* make_string_object(char *string);
@@ -80,7 +82,7 @@ m_object* make_double_object(double value);
 m_object* make_ident_object(char *ident);
 m_object* make_ref_object(m_object** ref);
 m_object* make_nill_object();
-
+m_object* make_function_object(char **args, ast_node* code);
 
 m_state* new_magic_state();
 int register_exception(m_state *state);
