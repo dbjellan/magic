@@ -86,8 +86,10 @@ m_state* new_magic_state();
 int register_exception(m_state *state);
 void pop_exception(m_state *state);
 void raise_uncaught(m_state *state);
+void raise_runtime(m_state *state, char *msg);
 
 void free_magic_object(m_object *obj);
 char *magic_object_tostring(m_object *ojb);
 m_object** get_lvalue(m_state* state, char *identifier);
 void set_identifier(m_state* state, char *identifier,  m_object* value);
+m_object* assign(m_state *state, m_object *lexp, m_object* rvalue);

@@ -181,6 +181,18 @@ m_object* get_identifier(m_state* state, char *identifier) {
     }
 }
 
+m_object* assign(m_state *state, m_object *lexp, m_object* rvalue) {
+    if (lexp->type == REF_OBJ) {
+        m_object **lvalue = (m_object **) lexp->value;
+        *lvalue = rvalue;
+        free_magic_object(lexp);
+    } else {
+        // object is IDENT_OBJ
+            set_identifier(state, (char *)lexp->value, rvalue);
+    }
+    return rvalue;
+}
+
 char *magic_object_tostring(m_object *obj) {
     char *result;
     switch (obj->type) {

@@ -241,7 +241,16 @@ struct magic_object* ast_execute_lval_ident(m_state * state, struct ast_node* no
 }
 
 struct magic_object *ast_execute_lval(m_state * state, struct ast_node* node) {
+    struct ast_node* cur_node = node;
+    if (node->type == AST_LVAL_ACCESS) {
+        m_object *a = ast_execute_lval(state, node->children[0]);
+        m_object *b = ast_execute_lval(state, node->children[1]);
+        if (a->type == REF_OBJ) {
+            
+        }
+    } else if(node->type == AST_LVAL_IDENTIFIER) {
 
+    }
 }
 
 struct magic_object* ast_execute_trycatch(m_state * state, struct ast_node* node) {
@@ -305,6 +314,7 @@ struct magic_object* ast_execute_function_call(m_state * state, struct ast_node*
     return result;
 }
 
+
 /* Execute ast and return and print and return any uncaught exceptions.
  *
  */
@@ -357,17 +367,9 @@ struct magic_object* ast_execute(m_state * state, struct ast_node* node) {
         case AST_ELSE:
         case AST_ELSEIF_ELSE:
         case AST_ASSIGN: {
-            magic_object *lexp = ast_execute(state, node->children[0]);
+            m_object *lexp = ast_execute_lval(state, node->children[0]);
             m_object *rvalue = ast_execute(state, node->children[1]);
-            if (lexp->type == REF_OBJ) {
-                m_object **lvalue = (m_object **) lexp->value;
-                *lvalue = rvalue;
-                free_magic_object(lexp);
-            } else {
-                // object is IDENT_OBJ
-                set_identifier(state, (char *)lexp->value, rvalue);
-            }
-            return rvalue;
+            return assign(state, lexp, rvalue);
         }
         case AST_LVAL_IDENTIFIER: 
             return ast_execute_lval_ident(state, node);
